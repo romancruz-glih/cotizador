@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Autos Star | Cotización</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:
+linear-gradient(rgba(0,0,0,.85),rgba(0,0,0,.85)),
+url("fondo_autos.jpg") center/cover fixed;
+display:flex;
+justify-content:center;
+padding:30px;
+}
+
+.contenedor{
+width:1200px;
+display:grid;
+grid-template-columns:420px 1fr;
+gap:30px;
+}
+
+.formulario{
+background:#111;
+color:#fff;
+padding:24px;
+border-radius:18px;
+border:3px solid #ff1a1a;
+box-shadow:0 0 30px rgba(255,0,0,.9);
+}
+
+.logo{text-align:center;}
+.logo img{width:180px;}
+
+h2{
+text-align:center;
+color:#ff1a1a;
+margin:15px 0;
+}
+
+.bloque{
+max-width:360px;
+margin:auto;
+}
+
+label{
+margin-top:10px;
+display:block;
+font-size:13px;
+}
+
+input{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid #333;
+background:#1a1a1a;
+color:#fff;
+}
+
+.minimo{
+color:#ff4d4d;
+font-weight:bold;
+font-size:13px;
+margin-top:4px;
+}
+
+.plazos{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+background:#0f0f0f;
+padding:10px;
+border-radius:10px;
+margin-top:8px;
+}
+
+button{
+width:100%;
+margin-top:14px;
+padding:14px;
+background:#c00000;
+color:#fff;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.preview{
+display:none;
+background:#f2f2f2;
+padding:20px;
+border-radius:14px;
+}
+
+.documento{
+background:#fff;
+padding:22px;
+border:2px solid #000;
+position:relative;
+overflow:hidden;
+}
+
+.marca-agua-pdf{
+position:absolute;
+top:50%;
+left:50%;
+width:620px;
+opacity:0.13;
+transform:translate(-50%,-50%);
+pointer-events:none;
+z-index:0;
+}
+
+.contenido-pdf{
+position:relative;
+z-index:2;
+}
+
+.encabezado{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:3px solid #c00000;
+padding-bottom:10px;
+margin-bottom:15px;
+}
+
+.encabezado img{width:150px;}
+
+.enc-info{
+text-align:right;
+font-size:13px;
+}
+
+.enc-info span{
+border-bottom:2px solid #000;
+font-weight:bold;
+}
+
+.titulo{
+font-size:22px;
+font-weight:bold;
+color:#c00000;
+margin-bottom:10px;
+}
+
+.datos{
+display:grid;
+grid-template-columns:1fr 1fr;
+border:2px solid #000;
+margin-bottom:15px;
+}
+
+.datos div{
+padding:8px;
+border-bottom:1px solid #000;
+border-right:1px solid #000;
+font-size:14px;
+}
+
+.datos div:nth-child(even){border-right:none;}
+
+.tabla{
+border:2px solid #000;
+}
+
+.tabla .enc{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+background:#c00000;
+color:#fff;
+font-weight:bold;
+}
+
+.tabla .fila{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+border-top:1px solid #000;
+}
+
+.tabla div{padding:8px;}
+
+.firma-bloque{
+margin-top:20px;
+text-align:center;
+}
+
+canvas{
+border:2px solid #000;
+width:320px;
+height:120px;
+}
+
+.firma-texto{
+margin-top:6px;
+font-size:13px;
+}
+
+.legal{
+font-size:11px;
+margin-top:12px;
+line-height:1.4;
+}
+
+.modo-pdf button{display:none !important;}
+.modo-pdf canvas{border:none !important;}
+</style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<div class="formulario">
+<div class="logo"><img src="logo_autos_star.jpg"></div>
+<h2>COTIZADOR</h2>
+
+<div class="bloque">
+<label>Cliente</label><input id="cliente">
+<label>Asesor</label><input id="asesor">
+<label>Marca</label><input id="marca">
+<label>Modelo</label><input id="modelo">
+<label>Año</label><input id="anio">
+<label>Precio contado</label><input id="contado" type="number">
+<label>Enganche</label><input id="enganche" type="number" value="25000">
+<div class="minimo">Enganche mínimo $25,000 MXN</div>
+
+<label>Anualidad (opcional)</label>
+<input id="anualidad" type="number">
+
+<label>Plazos</label>
+<div class="plazos">
+<label><input type="checkbox" value="12" checked> 12</label>
+<label><input type="checkbox" value="24" checked> 24</label>
+<label><input type="checkbox" value="36" checked> 36</label>
+<label><input type="checkbox" value="48" checked> 48 ⭐</label>
+<label><input type="checkbox" value="60" checked> 60</label>
+<label><input type="checkbox" value="72" checked> 72</label>
+</div>
+
+<button onclick="cotizar()">COTIZAR</button>
+</div>
+</div>
+
+<div class="preview" id="preview">
+<div class="documento" id="documentoPDF">
+
+<img src="marca_agua.png" class="marca-agua-pdf">
+
+<div class="contenido-pdf">
+
+<div class="encabezado">
+<img src="logo_autos_star_pdf.png">
+<div class="enc-info">
+<div>Folio: <span id="pFolio"></span></div>
+<div>Fecha: <span id="pFecha"></span></div>
+</div>
+</div>
+
+<div class="titulo">Cotización de Financiamiento</div>
+
+<div class="datos">
+<div><b>Cliente</b><br><span id="pCliente"></span></div>
+<div><b>Asesor</b><br><span id="pAsesor"></span></div>
+<div><b>Vehículo</b><br><span id="pVehiculo"></span></div>
+<div><b>Precio contado</b><br><span id="pContado"></span></div>
+<div><b>Enganche</b><br><span id="pEnganche"></span></div>
+<div><b>Anualidad</b><br><span id="pAnualidad"></span></div>
+<div><b>Monto financiado</b><br><span id="pFinanciado"></span></div>
+</div>
+
+<div class="tabla" id="tabla">
+<div class="enc">
+<div>PLAZO</div>
+<div>MENSUALIDAD</div>
+<div>MONTO TOTAL</div>
+</div>
+</div>
+
+<div class="firma-bloque">
+<canvas id="firma"></canvas>
+<div class="firma-texto">Firma del asesor</div>
+<button onclick="limpiarFirma()">Limpiar firma</button>
+</div>
+
+<div class="legal">
+Tasa mensual 0.5%. Abonos a capital sin penalización. Cotización informativa.
+</div>
+
+<button onclick="descargarPDF()">DESCARGAR PDF</button>
+
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+const canvas=document.getElementById("firma");
+const ctx=canvas.getContext("2d");
+let dib=false;
+
+canvas.onmousedown=()=>dib=true;
+canvas.onmouseup=()=>{dib=false;ctx.beginPath();}
+canvas.onmousemove=e=>{
+if(!dib) return;
+ctx.lineWidth=2;
+ctx.lineTo(e.offsetX,e.offsetY);
+ctx.stroke();
+};
+
+function limpiarFirma(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.beginPath();
+}
+
+function formato(n){
+return "$"+Number(n).toLocaleString("es-MX",{minimumFractionDigits:2});
+}
+
+/* === INTERÉS MENSUAL ACTUALIZADO === */
+const tasaMensual=0.005;
+
+function cotizar(){
+preview.style.display="block";
+
+let precio=Number(contado.value);
+let eng=Number(enganche.value);
+let anual=Number(anualidad.value||0);
+let capital=Math.max((precio-eng)-anual,0);
+
+pFolio.innerText="AS-"+Math.floor(100000+Math.random()*900000);
+pFecha.innerText=new Date().toLocaleDateString("es-MX");
+
+pCliente.innerText=cliente.value;
+pAsesor.innerText=asesor.value;
+pVehiculo.innerText=marca.value+" "+modelo.value+" "+anio.value;
+pContado.innerText=formato(precio);
+pEnganche.innerText=formato(eng);
+pAnualidad.innerText=anual?formato(anual)+" (abona a capital)":"No aplica";
+pFinanciado.innerText=formato(capital);
+
+tabla.innerHTML=`
+<div class="enc">
+<div>PLAZO</div>
+<div>MENSUALIDAD</div>
+<div>MONTO TOTAL</div>
+</div>`;
+
+document.querySelectorAll(".plazos input:checked").forEach(p=>{
+let meses=Number(p.value);
+let mensual=capital*(tasaMensual*Math.pow(1+tasaMensual,meses))/(Math.pow(1+tasaMensual,meses)-1);
+let total=mensual*meses;
+
+tabla.innerHTML+=`
+<div class="fila">
+<div>${meses} meses</div>
+<div>${formato(mensual)}</div>
+<div>${formato(total)}</div>
+</div>`;
+});
+}
+
+function descargarPDF(){
+const doc=document.getElementById("documentoPDF");
+doc.classList.add("modo-pdf");
+
+html2canvas(doc,{
+scale:3,
+useCORS:true,
+backgroundColor:"#ffffff",
+windowWidth:1200
+}).then(canvas=>{
+const img=canvas.toDataURL("image/jpeg",1.0);
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF("p","mm","a4");
+const w=pdf.internal.pageSize.getWidth();
+const h=canvas.height*w/canvas.width;
+pdf.addImage(img,"JPEG",0,0,w,h);
+pdf.save("Cotizacion_Autos_Star.pdf");
+doc.classList.remove("modo-pdf");
+});
+}
+</script>
+
+</body>
+</html>
+
+
+
+
