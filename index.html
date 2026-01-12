@@ -108,7 +108,6 @@ position:relative;
 overflow:hidden;
 }
 
-/* ===== MARCA DE AGUA AJUSTADA ===== */
 .marca-agua-pdf{
 position:absolute;
 top:50%;
@@ -189,11 +188,20 @@ border-top:1px solid #000;
 
 .tabla div{padding:8px;}
 
+.firma-bloque{
+margin-top:20px;
+text-align:center;
+}
+
 canvas{
 border:2px solid #000;
 width:320px;
 height:120px;
-margin-top:10px;
+}
+
+.firma-texto{
+margin-top:6px;
+font-size:13px;
 }
 
 .legal{
@@ -202,7 +210,6 @@ margin-top:12px;
 line-height:1.4;
 }
 
-/* ===== SOLO PARA PDF ===== */
 .modo-pdf button{display:none !important;}
 .modo-pdf canvas{border:none !important;}
 </style>
@@ -278,12 +285,14 @@ line-height:1.4;
 </div>
 </div>
 
-<canvas id="firma"></canvas><br>
-Firma del asesor
+<div class="firma-bloque">
+<canvas id="firma"></canvas>
+<div class="firma-texto">Firma del asesor</div>
 <button onclick="limpiarFirma()">Limpiar firma</button>
+</div>
 
 <div class="legal">
-Tasa mensual 1.004%. Abonos a capital sin penalización. Cotización informativa.
+Tasa mensual 0.5%. Abonos a capital sin penalización. Cotización informativa.
 </div>
 
 <button onclick="descargarPDF()">DESCARGAR PDF</button>
@@ -317,7 +326,8 @@ function formato(n){
 return "$"+Number(n).toLocaleString("es-MX",{minimumFractionDigits:2});
 }
 
-const tasaMensual=0.01004;
+/* === INTERÉS MENSUAL ACTUALIZADO === */
+const tasaMensual=0.005;
 
 function cotizar(){
 preview.style.display="block";
@@ -383,6 +393,7 @@ doc.classList.remove("modo-pdf");
 
 </body>
 </html>
+
 
 
 
